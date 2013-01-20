@@ -1,0 +1,8 @@
+2013-01-20 19:46:10 - EMERGENCY --> [Database] Database crashed.
+2013-01-20 19:46:10 - ALERT --> [Server] Loadtime over 5s!
+2013-01-20 19:46:10 - CRITCICAL --> [Drive] Diskspace under 2MB.
+2013-01-20 19:46:10 - ERROR --> [Uploader] Could not upload file: "test_04.pdf"
+2013-01-20 19:46:10 - WARNING --> [PHP] Variable $user_id was not initalized.
+2013-01-20 19:46:10 - NOTICE --> [User] User Login failed.
+2013-01-20 19:46:10 - INFORMATION --> [Cronjob] Cronjob "test" started.
+2013-01-20 19:46:10 - DEBUG --> [Usermodule] User-Hash: 838hshf82bd01()
