@@ -21,12 +21,12 @@
  */
 class naLogger {
 
-	// +++ Class Constants +++
-	/**
+    // +++ Class Constants +++
+    /**
      * Error severity, from low to high. From BSD syslog RFC, secion 4.1.1
      * @link http://www.faqs.org/rfcs/rfc3164.html
      */
-	const EMERG  = 0;  // Emergency: system is unusable
+    const EMERG  = 0;  // Emergency: system is unusable
     const ALERT  = 1;  // Alert: action must be taken immediately
     const CRIT   = 2;  // Critical: critical conditions
     const ERR    = 3;  // Error: error conditions
@@ -45,158 +45,162 @@ class naLogger {
     /**
     * Valid PHP date() format string for log timestamps
     * @var string
-	*/
-	private static $dateFormat = 'Y-m-d G:i:s';
+    */
+    private static $dateFormat = 'Y-m-d G:i:s';
 
-	/**
-	* The logfile path.
-	* @var string
-	*/
-	private static $logFilePath = null; 
+    /**
+    * The logfile path.
+    * @var string
+    */
+    private static $logFilePath = null; 
 
-	/**
-	* The limit to which the log should be written.
-	* @var const
-	*/
-	private static $severityLimit = null;
+    /**
+    * The limit to which the log should be written.
+    * @var const
+    */
+    private static $severityLimit = null;
 
-	/**
-	* The default permissions value for logfiles which are created.
-	* @var Octal
-	*/
-	private static $defaultPermissions =  0777;
+    /**
+    * The default permissions value for logfiles which are created.
+    * @var Octal
+    */
+    private static $defaultPermissions =  0777;
 
-	/** 
-	* The directory seperator
-	* @var string
-	*/
-	private static $directorySeperator = '/';
+    /** 
+    * The directory seperator
+    * @var string
+    */
+    private static $directorySeperator = '/';
 
-	/**
-	* The file resource stream
-	* @var File Resource
-	*/
-	private $file = null;
-	// --- Private Class Variables ---
+    /**
+    * The file resource stream
+    * @var File Resource
+    */
+    private $file = null;
+    // --- Private Class Variables ---
 
-	// +++ Constructors and Destructors +++
+    // +++ Constructors and Destructors +++
 
-	/**
-	* Class Constructor creates a new naLogger Object which can log messages.
-	* 
-	* @param string $logfile The logfile, where the logmessages should be stored.
-	* @param constant $severity The serverity level which should be stored. 
-	*/ 
-	public function __construct($logfile, $severity)
-	{
-		if ($severity === self::OFF) {
+    /**
+    * Class Constructor creates a new naLogger Object which can log messages.
+    * 
+    * @param string $logfile The logfile, where the logmessages should be stored.
+    * @param constant $severity The serverity level which should be stored. 
+    */ 
+    public function __construct($logfile, $severity)
+    {
+        if ($severity === self::OFF) {
             return;
         }
 
-		if(!file_exists($logfile) && !is_writeable($logfile)){
-			$split = explode(self::$directorySeperator, $logfile);
-			if(count($split) > 1){
-				array_pop($split);
-			
-				$path = '';
-				foreach ($split as $key => $value) {
-					$path .= $value.self::$directorySeperator;
-				}
+        if(!file_exists($logfile) && !is_writeable($logfile)){
+            $split = explode(self::$directorySeperator, $logfile);
+            if(count($split) > 1){
+                array_pop($split);
+            
+                $path = '';
+                foreach ($split as $key => $value) {
+                    $path .= $value.self::$directorySeperator;
+                }
 
-				if(!mkdir($path, self::$defaultPermissions, true)){
-					throw new Exception("The logfile/logdirectory doesn't exists and could not created.", 1);
-				}
-				else{
-					self::$logFilePath = $logfile;
-					$this->file = $this->openFile();
-				}
-			}
-		}
-		else{
-			self::$logFilePath = $logfile;
-			$this->file = $this->openFile();
-		}
-		self::$severityLimit = $severity;
-	}
-
-	/*
-	* When the class is destructed the logfile has to be closed.
-	*/
-	public function __destruct()
-	{
-		if(!self::$severityLimit === self::OFF) {
-			$this->closeFile();
+                if(!mkdir($path, self::$defaultPermissions, true)){
+                    throw new Exception("The logfile/logdirectory doesn't exists and could not created.", 1);
+                }
+                else{
+                    self::$logFilePath = $logfile;
+                    $this->file = $this->openFile();
+                }
+            }
+            else{
+                self::$logFilePath = $logfile;
+                $this->file = $this->openFile();
+            }
         }
-	}
-	// --- Constructors and Destructors ---
+        else{
+            self::$logFilePath = $logfile;
+            $this->file = $this->openFile();
+        }
+        self::$severityLimit = $severity;
+    }
 
-	// +++ Public Methods +++
-	/**
-	* Core Function which logs a message.
-	* @param string $text The message string.
-	* @param const $severity The severity level.
-	* @param string $feature Optional: The feature name.
-	*/
-	public function log($text, $severity, $feature = '')
-	{	
-		if(($severity <= self::$severityLimit) && (self::$severityLimit != self::OFF)){
-			if(!empty($feature)){$feature = '['.$feature.']';}
-			$header = $this->getLineHeader($severity, $feature);
+    /*
+    * When the class is destructed the logfile has to be closed.
+    */
+    public function __destruct()
+    {
+        if(!self::$severityLimit === self::OFF) {
+            $this->closeFile();
+        }
+    }
+    // --- Constructors and Destructors ---
 
-			$this->writeLine($header.' '.$text);	
-		}		
-	}	
+    // +++ Public Methods +++
+    /**
+    * Core Function which logs a message.
+    * @param string $text The message string.
+    * @param const $severity The severity level.
+    * @param string $feature Optional: The feature name.
+    */
+    public function log($text, $severity, $feature = '')
+    {   
+        if(($severity <= self::$severityLimit) && (self::$severityLimit != self::OFF)){
+            if(!empty($feature)){$feature = '['.$feature.']';}
+            $header = $this->getLineHeader($severity, $feature);
 
-	/**
+            $this->writeLine($header.' '.$text);    
+        }       
+    }   
+
+    /**
      * Writes a $line to the log with a severity level of EMERG.
      *
      * @param string $line Information to log
      * @return void
      */
-	public function logEmerg($line, $feature)
-	{
-		$this->log($line, self::EMERG, $feature);
-	}
+    public function logEmerg($line, $feature)
+    {
+        $this->log($line, self::EMERG, $feature);
+    }
 
 
-	/**
+    /**
      * Writes a $line to the log with a severity level of ALERT.
      *
      * @param string $line Information to log
      * @return void
      */
-	public function logAlert($line, $feature)
-	{
-		$this->log($line, self::ALERT, $feature);
-	}
+    public function logAlert($line, $feature)
+    {
+        $this->log($line, self::ALERT, $feature);
+    }
 
 
-	/**
+    /**
      * Writes a $line to the log with a severity level of CRIT.
      *
      * @param string $line Information to log
      * @return void
      */
-	public function logCrit($line, $feature)
-	{
-		$this->log($line, self::CRIT, $feature);
-	}
+    public function logCrit($line, $feature)
+    {
+        $this->log($line, self::CRIT, $feature);
+    }
 
 
-	/**
+    /**
      * Writes a $line to the log with a severity level of ERR. Most likely used
      * with E_RECOVERABLE_ERROR
      *
      * @param string $line Information to log
      * @return void
      */
-	public function logErr($line, $feature)
-	{
-		$this->log($line, self::ERR, $feature);
-	}
+    public function logErr($line, $feature)
+    {
+        $this->log($line, self::ERR, $feature);
+    }
 
 
-	/**
+    /**
      * Writes a $line to the log with a severity level of WARN. Generally
      * corresponds to E_WARNING, E_USER_WARNING, E_CORE_WARNING, or 
      * E_COMPILE_WARNING
@@ -204,148 +208,148 @@ class naLogger {
      * @param string $line Information to log
      * @return void
      */
-	public function logWarn($line, $feature)
-	{
-		$this->log($line, self::WARN, $feature);
-	}
+    public function logWarn($line, $feature)
+    {
+        $this->log($line, self::WARN, $feature);
+    }
 
 
-	/**
+    /**
      * Writes a $line to the log with a severity level of NOTICE. Generally
      * corresponds to E_STRICT, E_NOTICE, or E_USER_NOTICE errors
      *
      * @param string $line Information to log
      * @return void
      */
-	public function logNotice($line, $feature)
-	{
-		$this->log($line, self::NOTICE, $feature);
-	}
+    public function logNotice($line, $feature)
+    {
+        $this->log($line, self::NOTICE, $feature);
+    }
 
 
-	/**
+    /**
      * Writes a $line to the log with a severity level of INFO. Any information
      * can be used here, or it could be used with E_STRICT errors
      *
      * @param string $line Information to log
      * @return void
      */
-	public function logInfo($line, $feature)
-	{
-		$this->log($line, self::INFO, $feature);
-	}
+    public function logInfo($line, $feature)
+    {
+        $this->log($line, self::INFO, $feature);
+    }
 
 
-	/**
+    /**
      * Writes a $line to the log with a severity level of DEBUG.
      *
      * @param string $line Information to log
      * @return void
      */
-	public function logDebug($line, $feature)
-	{
-		$this->log($line, self::DEBUG, $feature);
-	}
-	// --- Public Methods ---
-	
-	// +++ Private Methods +++
-	/**
-	* Sets the date format string
-	* @param string $formatstring A valid PHP date() format string.
-	*/
-	private function setDateFormat($formatstring)
-	{
-		self::$DateFormat = $formatstring;
-	}
+    public function logDebug($line, $feature)
+    {
+        $this->log($line, self::DEBUG, $feature);
+    }
+    // --- Public Methods ---
+    
+    // +++ Private Methods +++
+    /**
+    * Sets the date format string
+    * @param string $formatstring A valid PHP date() format string.
+    */
+    private function setDateFormat($formatstring)
+    {
+        self::$DateFormat = $formatstring;
+    }
 
-	/**
-	* Opens the log file and creates it if doesn't exist.
-	*/
-	private function openFile()
-	{	
-		$resource = fopen(self::$logFilePath, 'a+');
-		if(!$resource){
-			throw new Exception("The logfile could not opened.", 1);
-		}
-		else{
-			return $resource;
-		}
-	}
+    /**
+    * Opens the log file and creates it if doesn't exist.
+    */
+    private function openFile()
+    {   
+        $resource = fopen(self::$logFilePath, 'a+');
+        if(!$resource){
+            throw new Exception("The logfile could not opened.", 1);
+        }
+        else{
+            return $resource;
+        }
+    }
 
-	/**
-	* Close the log file.
-	*/
-	private function closeFile()
-	{
-		if(!fclose($this->file)){
-			throw new Exception("The logfile could not closed.", 1);
-			
-		}
-	}
-
-
-	/**
-	* Writes a line to the logfile
-	* @param string $line
-	*/
-	private function writeLine($line)
-	{
-		if(!fwrite($this->file, $line . PHP_EOL)){
-			throw new Exception("Can not write to the log file.", 1);
-			
-		}
-	} 
+    /**
+    * Close the log file.
+    */
+    private function closeFile()
+    {
+        if(!fclose($this->file)){
+            throw new Exception("The logfile could not closed.", 1);
+            
+        }
+    }
 
 
-	/**
-	* Creates the line header for the diffrent severity levels
-	* @param const $severity The severity level.
-	* @param string $category The category which should be added.
-	* @return string $header The full header
-	*/
-	private function getLineHeader($severity, $category)
-	{	
-		$time = date(self::$dateFormat);
+    /**
+    * Writes a line to the logfile
+    * @param string $line
+    */
+    private function writeLine($line)
+    {
+        if(!fwrite($this->file, $line . PHP_EOL)){
+            throw new Exception("Can not write to the log file.", 1);
+            
+        }
+    } 
 
-		switch ($severity) {
-			case self::EMERG:
-					$header = $time." - EMERGENCY --> ".$category;
-				break;
 
-			case self::ALERT:
-					$header = $time." - ALERT --> ".$category;
-				break;
+    /**
+    * Creates the line header for the diffrent severity levels
+    * @param const $severity The severity level.
+    * @param string $category The category which should be added.
+    * @return string $header The full header
+    */
+    private function getLineHeader($severity, $category)
+    {   
+        $time = date(self::$dateFormat);
 
-			case self::CRIT:
-					$header = $time." - CRITCICAL --> ".$category;
-				break;
+        switch ($severity) {
+            case self::EMERG:
+                $header = $time." - EMERGENCY --> ".$category;
+            break;
 
-			case self::ERR:
-					$header = $time." - ERROR --> ".$category;
-				break;
-			
-			case self::WARN:
-					$header = $time." - WARNING --> ".$category;
-				break;
+            case self::ALERT:
+                $header = $time." - ALERT --> ".$category;
+            break;
 
-			case self::NOTICE:
-					$header = $time." - NOTICE --> ".$category;
-				break;
+            case self::CRIT:
+                $header = $time." - CRITCICAL --> ".$category;
+            break;
 
-			case self::INFO:
-					$header = $time." - INFORMATION --> ".$category;
-				break;
+            case self::ERR:
+                $header = $time." - ERROR --> ".$category;
+            break;
+            
+            case self::WARN:
+                $header = $time." - WARNING --> ".$category;
+            break;
 
-			case self::DEBUG:
-					$header = $time." - DEBUG --> ".$category;
-				break;
-			
-			default:
-					$header = $time." - LOG --> ".$category;
-				break;
-		}
-		return $header;
-	}
-	// --- Private Methods ---
+            case self::NOTICE:
+                $header = $time." - NOTICE --> ".$category;
+            break;
+
+            case self::INFO:
+                $header = $time." - INFORMATION --> ".$category;
+            break;
+
+            case self::DEBUG:
+                $header = $time." - DEBUG --> ".$category;
+            break;
+            
+            default:
+                $header = $time." - LOG --> ".$category;
+            break;
+        }
+        return $header;
+    }
+    // --- Private Methods ---
 }
 ?>
