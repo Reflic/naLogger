@@ -1,5 +1,5 @@
 {
-    "name": "reflic/naLogger",
+    "name": "reflic/na-logger",
     "type": "library",
     "description": "Simple feature-supporting (categories) Logging for PHP.",
     "keywords": ["log","logging", "categories"],
