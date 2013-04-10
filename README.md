@@ -5,12 +5,27 @@ naLogger
 Usage
 -----
 ### Directly
+Download the `src/` directory and place it into your working directory.
+then include the file `naLogger.php`
+
+```php
+<?php
+require 'src/naLogger.php';
+...
+```
 
 ### With Composer
 Create a composer.json with this content:
 
+```json
+{
+    "require": {
+        "reflic/na-logger": "v1.0.0"
+    }
+}
+```
 
-If you already have a composer.json add this to the *require* section: ``
+If you already have a composer.json add this to the *require* section: `"reflic/na-logger": "v1.0.0`
 
 
 Then to autoload the libary add this to your main PHP file. (In most frameworks like Laravel or Symfony this file is already loaded.)
@@ -18,13 +33,12 @@ Then to autoload the libary add this to your main PHP file. (In most frameworks 
 <?php
 require 'vendor/autoload.php';
 
+// Create the log object.
 $logger = new naLogger('etc/log.txt', naLogger::DEBUG);
 
+// Log some messages.
 $logger->logEmerg('Database crashed.', 'Database');
 $logger->logAlert('Loadtime over 5s!', 'Server');
-$logger->logCrit('Diskspace under 2MB.', 'Drive');
-$logger->logErr('Could not upload file: "test_04.pdf"', 'Uploader');
-$logger->logWarn('Variable $user_id was not initalized.', 'PHP');
 $logger->logNotice('User Login failed.', 'User');
 $logger->logInfo('Cronjob "test" started.', 'Cronjob');
 $logger->logDebug('User-Hash: 838hshf82bd01()', 'Usermodule');
